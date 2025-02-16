@@ -1,0 +1,168 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "CalcBook",
+    "scopeName": "source.calcbook",
+    "patterns": [
+        {
+            "include": "#whitespace"
+        },
+        {
+            "include": "#comment"
+        },
+        {
+            "include": "#string_double"
+        },
+        {
+            "include": "#string_single"
+        },
+        {
+            "include": "#number"
+        },
+        {
+            "include": "#operator"
+        },
+        {
+            "include": "#parentheses"
+        },
+        {
+            "include": "#brackets"
+        },
+        {
+            "include": "#comma"
+        },
+        {
+            "include": "#semicolon"
+        },
+        {
+            "include": "#functionCall"
+        },
+        {
+            "include": "#identifier"
+        }
+    ],
+    "repository": {
+        "whitespace": {
+            "match": "\\s+",
+            "name": "text.whitespace.calcbook"
+        },
+        "comment": {
+            "match": "#.*$",
+            "name": "comment.line.number-sign.calcbook"
+        },
+        "number": {
+            "match": "\\b(?:\\d+\\.\\d+|\\d+|\\.\\d+)(?:[eE][+-]?\\d+)?\\b",
+            "name": "constant.numeric.calcbook"
+        },
+        "operator": {
+            "match": "==|!=|<=|>=|\\+|-|\\*|/|%|\\^|!|<|>|=",
+            "name": "keyword.operator.calcbook"
+        },
+        "parentheses": {
+            "patterns": [
+                {
+                    "match": "\\(",
+                    "name": "punctuation.parenthesis.open.calcbook"
+                },
+                {
+                    "match": "\\)",
+                    "name": "punctuation.parenthesis.close.calcbook"
+                }
+            ]
+        },
+        "brackets": {
+            "patterns": [
+                {
+                    "match": "\\[",
+                    "name": "punctuation.bracket.open.calcbook"
+                },
+                {
+                    "match": "\\]",
+                    "name": "punctuation.bracket.close.calcbook"
+                }
+            ]
+        },
+        "comma": {
+            "match": ",",
+            "name": "punctuation.separator.comma.calcbook"
+        },
+        "semicolon": {
+            "match": ";",
+            "name": "punctuation.terminator.statement.calcbook"
+        },
+        "identifier": {
+            "match": "\\b[a-zA-Z_]\\w*\\b",
+            "name": "variable.other.calcbook"
+        },
+        "functionCall": {
+            "name": "meta.function-call.calcbook",
+            "begin": "(\\b[a-zA-Z_]\\w*\\b)(\\s*)(\\()",
+            "beginCaptures": {
+                "1": {
+                    "name": "entity.name.function.calcbook"
+                },
+                "3": {
+                    "name": "punctuation.definition.parameters.begin.calcbook"
+                }
+            },
+            "end": "\\)",
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.definition.parameters.end.calcbook"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#expression"
+                }
+            ]
+        },
+        "expression": {
+            "patterns": [
+                {
+                    "include": "#whitespace"
+                },
+                {
+                    "include": "#comment"
+                },
+                {
+                    "include": "#string_double"
+                },
+                {
+                    "include": "#string_single"
+                },
+                {
+                    "include": "#number"
+                },
+                {
+                    "include": "#operator"
+                },
+                {
+                    "include": "#parentheses"
+                },
+                {
+                    "include": "#brackets"
+                },
+                {
+                    "include": "#comma"
+                },
+                {
+                    "include": "#semicolon"
+                },
+                {
+                    "include": "#functionCall"
+                },
+                {
+                    "include": "#identifier"
+                }
+            ]
+        },
+        "string_double": {
+            "match": "\"(?:[^\"\\\\]|\\\\.)*\"",
+            "name": "string.quoted.double.calcbook"
+        },
+        "string_single": {
+            "match": "'(?:[^'\\\\]|\\\\.)*'",
+            "name": "string.quoted.single.calcbook"
+        }
+    }
+}
