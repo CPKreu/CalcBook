@@ -1,0 +1,8 @@
+## Inputs
+distanceDriven = 50 km #/ Distance driven in km
+consumption = 7 l / 100 km #/ Fuel consumption in liters per 100 km
+fuelPrice = 1.7 EUR / l #/ Fuel price in € per liter
+
+## Result
+distanceDriven * consumption * fuelPrice
+

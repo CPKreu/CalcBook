@@ -1,6 +1,6 @@
 # CalcBook
 
-CalcBook is a extension for writing simple math equations in a text file.
+CalcBook is a extension for writing math equations in a simple text file format
 
 It features
 * Live Evaluation
@@ -9,11 +9,14 @@ It features
 
 ## Example Usage
 
-To create a new CalcBook, save a file with the .clb extension or select CalcBook in the language selector at the bottom right
+To create a new CalcBook, use the File > New File... Menu or create a File with the extension .clb
 
-### Wattage
+[All Examples](/examples/)
 
-voltage = 20 V \
-amperage = 5 A
+### Fuel Cost
 
-voltage * amperage *100 W*
+![](/img/fuelPrice.png)
+
+### Electricity Cost
+
+![](/img/electricityCost.png)

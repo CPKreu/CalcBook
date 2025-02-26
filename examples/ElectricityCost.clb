@@ -1,0 +1,28 @@
+## Inputs
+electricityPrice = 0.15 USD / kWh #/ Price of electricity in dollars per kilowatt-hour
+powerUsage = 900 W #/ Device power usage in watts
+usageTime = 8 hours #/ Daily usage time in hours
+
+## Calculations
+# Convert power usage to kilowatts
+powerUsage_kW = to(powerUsage, kW)
+
+# Daily energy consumption in kilowatt-hours
+dailyEnergyConsumption_kWh = powerUsage_kW * usageTime
+
+# Monthly energy consumption in kilowatt-hours
+monthlyEnergyConsumption_kWh = dailyEnergyConsumption_kWh * 30
+
+# Monthly cost
+monthlyCost = monthlyEnergyConsumption_kWh * electricityPrice
+
+## Results
+# Daily energy consumption
+to(dailyEnergyConsumption_kWh, Wh)
+
+# Monthly energy consumption
+to(monthlyEnergyConsumption_kWh, kWh)
+
+# Monthly cost
+monthlyCost
+
