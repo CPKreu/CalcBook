@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import unitMap from './misc/unitMap.js';
+import { unitMap } from './misc/unitMap.js';
 import UNIT_DETAILS from './misc/unitDetails.js';
 import functionDetails from './misc/functionDetails.js';
 import { evaluateScopeUntilLine } from './evaluations.js';
@@ -51,7 +51,14 @@ function getBuiltInItems() {
 
         if (detail) {
             item.detail = detail.displayName;
-            item.documentation = new vscode.MarkdownString(detail.purpose + "\n```\n" + detail.siEquivalent + "\n```");
+
+            let unitDetail = detail.purpose;
+
+            if (detail.siEquivalent) {
+                unitDetail += "\n```\n" + detail.siEquivalent + "\n```";
+            }
+
+            item.documentation = new vscode.MarkdownString(unitDetail);
         }
 
         items.push(item);

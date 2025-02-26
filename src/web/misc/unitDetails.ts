@@ -1,7 +1,7 @@
 export interface UnitDetail {
     displayName: string;
     purpose: string;
-    siEquivalent: string;
+    siEquivalent?: string;
 }
 
 /**
@@ -13,6 +13,7 @@ const baseUnitDetails: { [unitId: string]: UnitDetail } = {
     "meter": { displayName: "Meter", purpose: "Unit of length", siEquivalent: "1 m" },
     "inch": { displayName: "Inch", purpose: "Unit of length", siEquivalent: "1 in = 0.0254 m" },
     "foot": { displayName: "Foot", purpose: "Unit of length", siEquivalent: "1 ft = 0.3048 m" },
+    "currency": { displayName: "Currency", purpose: "Medium of exchange\n\nNote: All currencies have the same value and cannot be converted" },
     // … other non–SI or non–prefixed units
 
     // SI base units (for which we want to allow metric prefixes)
@@ -118,14 +119,7 @@ for (const baseUnit of metricPrefixableUnits) {
         // Build a display name, e.g. "Centimeter"
         const displayName = display + " " + baseDetail.displayName;
 
-        // Compute a simple SI equivalent string.
-        // Here we assume that the base detail’s siEquivalent is written as “1 <symbol> …”
-        // so we simply use the factor and the base unit.
-        // For example: "1 centimeter = 0.01 m"
-        // (In a real application you might want to parse the base siEquivalent more robustly.)
-        // We extract the SI symbol from the baseDetail.siEquivalent.
-        const baseSiSymbol = baseDetail.siEquivalent.split(" ")[1] || baseUnit;
-        const siEquivalent = `1 ${prefixedId} = ${factor} ${baseSiSymbol}`;
+        const siEquivalent = getSiEquivalantDescription(baseDetail.siEquivalent, prefixedId, baseUnit, factor);
 
         UNIT_DETAILS[prefixedId] = {
             displayName,
@@ -133,6 +127,15 @@ for (const baseUnit of metricPrefixableUnits) {
             siEquivalent,
         };
     }
+}
+
+function getSiEquivalantDescription(siEquivalent: string | undefined, prefixedId: string, baseUnit: string, factor: number): string | undefined {
+    if (!siEquivalent) {
+        return undefined;
+    }
+
+    const baseSiSymbol = siEquivalent.split(" ")[1] || baseUnit;
+    return `1 ${prefixedId} = ${factor} ${baseSiSymbol}`;
 }
 
 /**
