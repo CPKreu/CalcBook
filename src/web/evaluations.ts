@@ -57,7 +57,7 @@ function getEvaluations(document: vscode.TextDocument): vscode.DecorationOptions
 		};
 
 		const decoration: vscode.DecorationOptions = {
-			range: line!.range,
+			range: new vscode.Range(line.range.end, line.range.end),
 			renderOptions: append.decoration,
 			hoverMessage: hoverMessage
 		};
