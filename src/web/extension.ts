@@ -20,12 +20,18 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.env.clipboard.writeText(mathjs.parse(editor.document.lineAt(editor.selection.start).text).toTex());
 	});
 
+	const newCalcbookFile = vscode.commands.registerCommand('calcbook.newCalcbookFile', async () => {
+		const document = await vscode.workspace.openTextDocument({ language: "calcbook" })
+        await vscode.window.showTextDocument(document);
+	});
+
 	language.activate(context);
 	decorator.activate(context);
 	detailsPane.activate(context);
 
 	context.subscriptions.push(copyCommand);
 	context.subscriptions.push(copyTexCommand);
+	context.subscriptions.push(newCalcbookFile);
 }
 
 export function deactivate() {}

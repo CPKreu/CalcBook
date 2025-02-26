@@ -48,6 +48,11 @@
       {
         "command": "calcbook.copyTeX",
         "title": "Copy as TeX"
+      },
+      {
+        "command": "calcbook.newCalcbookFile",
+        "title": "Create: New CalcBook File",
+        "shortTitle": "CalcBook"
       }
     ],
     "menus": {
@@ -61,6 +66,12 @@
         {
           "command": "calcbook.copyTeX",
           "when": "editorLangId == 'calcbook'"
+        }
+      ],
+      "file/newFile": [
+        {
+          "command": "calcbook.newCalcbookFile",
+          "group": "File"
         }
       ]
     }
