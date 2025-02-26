@@ -2,7 +2,12 @@
   "name": "calcbook",
   "type": "module",
   "displayName": "CalcBook",
-  "description": "CalcBook is an extension that lets you write and evaluate math equations in a text file in real time",
+  "description": "Real time math equation evaluations",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CPKreu/CalcBook"
+  },
   "publisher": "cpkreu",
   "icon": "img/logo.png",
   "version": "0.0.1",
