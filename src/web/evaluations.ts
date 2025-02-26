@@ -70,6 +70,8 @@ function getEvaluations(document: vscode.TextDocument): vscode.DecorationOptions
 
 function evaluateScopeUntilLine(document: vscode.TextDocument, scope: any, line: number): any {
 	let result: any;
+	scope._calcBookComment = { };
+	scope._calcBookExpression = { };
 
 	for (let i = 0; i <= line; i++) {
 		const line = document.lineAt(i);

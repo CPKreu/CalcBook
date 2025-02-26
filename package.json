@@ -42,9 +42,18 @@
     "commands": [
       {
         "command": "calcbook.showDetailsPane",
-        "title": "CalcBook: Show Details"
+        "title": "CalcBook: Show Details",
+        "icon": "$(inspect)"
       }
-    ]
+    ],
+    "menus": {
+      "editor/title/run": [
+        {
+          "command": "calcbook.showDetailsPane",
+          "when": "editorLangId == 'calcbook'"
+        }
+      ]
+    }
   },
   "scripts": {
     "test": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. --extensionTestsPath=dist/web/test/suite/extensionTests.js",
@@ -76,6 +85,7 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
+    "html-entities": "^2.5.2",
     "mathjs": "^14.2.1"
   }
 }
