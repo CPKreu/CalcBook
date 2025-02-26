@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { unitMap } from './misc/unitMap.js';
 import UNIT_DETAILS from './misc/unitDetails.js';
 import functionDetails from './misc/functionDetails.js';
-import { evaluateScopeUntilLine } from './evaluations.js';
+import { evaluateScopeUntilLine, ExtraContext as ScopeContext } from './evaluations.js';
 
 export function activate(context: vscode.ExtensionContext) {
     const builtInItems = getBuiltInItems();
@@ -15,23 +15,63 @@ export function activate(context: vscode.ExtensionContext) {
         }
     };
 
+    const hoverProvider: vscode.HoverProvider = {
+        provideHover(document, position, token) {
+            const scope = { } as any;
+            const context = new ScopeContext();
+
+            evaluateScopeUntilLine(document, scope, position.line - 1, context);
+
+            const word = document.getText(document.getWordRangeAtPosition(position));
+
+            if (scope[word]) {
+                const comment = context.comments[word];
+                const expression = context.expressions[word];
+
+                return new vscode.Hover(new vscode.MarkdownString((comment ?? "") + "\n```\n" + expression + "\n```"));
+            }
+        }
+    };
+
+    const definitionProvider: vscode.DefinitionProvider = {
+        provideDefinition(document, position, token) {
+            const scope = { } as any;
+            const context = new ScopeContext();
+
+            evaluateScopeUntilLine(document, scope, position.line - 1, context);
+
+            const word = document.getText(document.getWordRangeAtPosition(position));
+
+            if (scope[word]) {
+                const line = context.defintionLine[word];
+                const range = document.lineAt(line).range;
+                const wordRange = document.getWordRangeAtPosition(range.start);
+
+                return { range: wordRange, uri: document.uri } as vscode.Definition;
+            }
+        },
+    }
+
     vscode.languages.registerCompletionItemProvider("calcbook", completionItemProvider);
+    vscode.languages.registerHoverProvider("calcbook", hoverProvider);
+    vscode.languages.registerDefinitionProvider("calcbook", definitionProvider);
 }
 
 function getCompletionItemsAtLine(document: vscode.TextDocument, line: number): vscode.CompletionItem[] {
     const items: vscode.CompletionItem[] = [];
-    const scope = { _calcBookComment: { } = { }, _calcBookExpression: { } = { } } as any;
+    const scope = { } as any;
+    const context = new ScopeContext();
 
-    evaluateScopeUntilLine(document, scope, line);
+    evaluateScopeUntilLine(document, scope, line, context);
 
     for (const element in scope) {
-        if (element === "_calcBookComment" || element === "_calcBookExpression") continue;
+        if (element.startsWith("_calcBook")) continue;
 
         const item = new vscode.CompletionItem(element, vscode.CompletionItemKind.Variable);
-        const comment = scope._calcBookComment[element];
-        const expression = scope._calcBookExpression[element];
+        const comment = context.comments[element];
+        const expression = context.expressions[element];
 
-        item.documentation = new vscode.MarkdownString(comment + "\n```\n" + expression + "\n```");
+        item.documentation = new vscode.MarkdownString((comment ?? "") + "\n```\n" + expression + "\n```");
 
         items.push(item);
     }

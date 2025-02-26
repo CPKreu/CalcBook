@@ -6,6 +6,18 @@ interface EvaluatedAppend {
     resultText: string
 }
 
+class ExtraContext {
+	comments: { [symbol: string]: string };
+	expressions: { [symbol: string]: string };
+	defintionLine: { [symbol: string]: number };
+
+	constructor() {
+		this.comments = { }
+		this.expressions = { }
+		this.defintionLine = { }
+	}
+}
+
 const decorator = vscode.window.createTextEditorDecorationType({
 	after: {
 		fontStyle: "italic"
@@ -68,7 +80,7 @@ function getEvaluations(document: vscode.TextDocument): vscode.DecorationOptions
 	return decorations;
 }
 
-function evaluateScopeUntilLine(document: vscode.TextDocument, scope: any, line: number): any {
+function evaluateScopeUntilLine(document: vscode.TextDocument, scope: any, line: number, context?: ExtraContext): any {
 	let result: any;
 	scope._calcBookComment = { };
 	scope._calcBookExpression = { };
@@ -84,12 +96,16 @@ function evaluateScopeUntilLine(document: vscode.TextDocument, scope: any, line:
 
 		result = expression.compile().evaluate(scope);
 
-		if (expression instanceof mathjs.AssignmentNode) {
+		if (expression instanceof mathjs.AssignmentNode && context) {
 			const assignmentObject = expression.object;
 			if (assignmentObject instanceof mathjs.SymbolNode) {
+				const name = assignmentObject.name;
+
+				context.expressions[name] = expression.toString().trim();
+				context.defintionLine[name] = i;
+
 				if (expression.comment && expression.comment.startsWith("#/")) {
-					scope._calcBookComment[assignmentObject.name] = expression.comment.substring(2);
-					scope._calcBookExpression[assignmentObject.name] = expression.toString();
+					context.comments[name] = expression.comment.substring(2).trim();
 				}
 			}
 		}
@@ -171,5 +187,5 @@ function errorAppend(text: string): EvaluatedAppend {
 	};
 }
 
-export { applyEvaluationsOnClb, getEvaluations, getAppend, evaluateScopeUntilLine, formatResult, decorator };
+export { applyEvaluationsOnClb, getEvaluations, getAppend, evaluateScopeUntilLine, formatResult, decorator, ExtraContext };
 export type { EvaluatedAppend };

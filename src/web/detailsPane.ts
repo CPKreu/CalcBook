@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as mathjs from 'mathjs';
-import { evaluateScopeUntilLine, formatResult } from './evaluations.js';
+import { evaluateScopeUntilLine, ExtraContext, formatResult } from './evaluations.js';
 import { encode } from 'html-entities';
 
 let currentPanel: vscode.WebviewPanel | undefined = undefined;
@@ -34,8 +34,10 @@ function updatePreviewPane(editor: vscode.TextEditor | undefined) {
     const currentLine = document.lineAt(editor.selection.start);
 
     let html = "";
-    const scope: any = { };
     try {
+        const scope: any = { };
+        const context = new ExtraContext();
+
         const finalResult = evaluateScopeUntilLine(document, scope, currentLine.lineNumber);
     
         const formattedResult = formatResult(finalResult, scope);
@@ -72,6 +74,9 @@ function updatePreviewPane(editor: vscode.TextEditor | undefined) {
     
             <h2>Scope</h2>
             <pre><code>${encode(JSON.stringify(scope, null, 2))}</code></pre>
+            
+            <h2>Scope Context</h2>
+            <pre><code>${encode(JSON.stringify(context, null, 2))}</code></pre>
         </body>
         </html>`;
     }
