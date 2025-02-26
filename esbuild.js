@@ -1,7 +1,11 @@
-const esbuild = require('esbuild');
-const glob = require('glob');
-const path = require('path');
-const polyfill = require('@esbuild-plugins/node-globals-polyfill');
+import { context } from 'esbuild';
+import { glob as _glob } from 'glob';
+import { fileURLToPath } from 'url';
+import { resolve, join, dirname } from 'path';
+import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const production = process.argv.includes('--production');
 const watch = process.argv.includes('--watch');
@@ -40,25 +44,25 @@ const testBundlePlugin = {
 	setup(build) {
 		build.onResolve({ filter: /[\/\\]extensionTests\.ts$/ }, args => {
 			if (args.kind === 'entry-point') {
-				return { path: path.resolve(args.path) };
+				return { path: resolve(args.path) };
 			}
 		});
 		build.onLoad({ filter: /[\/\\]extensionTests\.ts$/ }, async args => {
-			const testsRoot = path.join(__dirname, 'src/web/test/suite');
-			const files = await glob.glob('*.test.{ts,tsx}', { cwd: testsRoot, posix: true });
+			const testsRoot = join(__dirname, 'src/web/test/suite');
+			const files = await _glob('*.test.{ts,tsx}', { cwd: testsRoot, posix: true });
 			return {
 				contents:
 					`export { run } from './mochaTestRunner.ts';` +
 					files.map(f => `import('./${f}');`).join(''),
-				watchDirs: files.map(f => path.dirname(path.resolve(testsRoot, f))),
-				watchFiles: files.map(f => path.resolve(testsRoot, f))
+				watchDirs: files.map(f => dirname(resolve(testsRoot, f))),
+				watchFiles: files.map(f => resolve(testsRoot, f))
 			};
 		});
 	}
 };
 
 async function main() {
-	const ctx = await esbuild.context({
+	const ctx = await context({
 		entryPoints: [
 			'src/web/extension.ts',
 			'src/web/test/suite/extensionTests.ts'
@@ -78,7 +82,7 @@ async function main() {
 		},
 
 		plugins: [
-			polyfill.NodeGlobalsPolyfillPlugin({
+			NodeGlobalsPolyfillPlugin({
 				process: true,
 				buffer: true,
 			}),

@@ -7,13 +7,16 @@ interface EvaluatedAppend {
 }
 
 const decorator = vscode.window.createTextEditorDecorationType({
+	after: {
+		fontStyle: "italic"
+	},
     dark: {
         after: {
-            color: "#42aaff"
+            color: "#eeeeee"
         }
     },
     light: {
-        before: {
+        after: {
             color: "#000000"
         }
     }
@@ -43,6 +46,10 @@ function getEvaluations(document: vscode.TextDocument): vscode.DecorationOptions
 
 		const append = getAppend(line.text, scope);
 
+		if (!append) {
+			continue;
+		}
+
 		const hoverMessage = new vscode.MarkdownString(`${append.resultText} [Copy](command:calcbook.copyToClipboard?${encodeURIComponent(append.resultText)})`);
 
 		hoverMessage.isTrusted = {
@@ -61,30 +68,46 @@ function getEvaluations(document: vscode.TextDocument): vscode.DecorationOptions
 	return decorations;
 }
 
-function getAppend(text: string, scope: any): EvaluatedAppend {
+function evaluateScopeUntilLine(document: vscode.TextDocument, scope: any, line: number) {
+	for (let i = 0; i <= line; i++) {
+		const line = document.lineAt(i);
+
+		if (line.isEmptyOrWhitespace || line.text.match(/^\s*#/m)) {
+			continue;
+		}
+
+		const expression = mathjs.parse(line.text);
+
+		expression.compile().evaluate(scope);
+
+		if (expression instanceof mathjs.AssignmentNode) {
+			const assignmentObject = expression.object;
+			if (assignmentObject instanceof mathjs.SymbolNode) {
+				if (expression.comment && expression.comment.startsWith("#/")) {
+					scope._calcBookComment[assignmentObject.name] = expression.comment.substring(2);
+					scope._calcBookExpression[assignmentObject.name] = expression.toString();
+				}
+			}
+		}
+	}
+}
+
+function getAppend(text: string, scope: any): EvaluatedAppend | undefined {
 	try {
         let result;
+		const expression = mathjs.parse(text);
 
-        if (scope._qikParse) {
-            result = mathjs.parse(text, scope);
-        }
-        else {
-            result = mathjs.evaluate(text, scope);
-        }
+		result = expression.compile().evaluate(scope);
 
-        if (scope._qikDebug || scope._qikParse) {
-            if (typeof result === 'function') {
-				return result;
-            }
-    
-			return simpleAppend(JSON.stringify(result));
-        }
+		const formattedResult = formatResult(result, scope);
 
-        if (typeof result === 'function') {
-            return simpleAppend("𝑓");
-        }
+		if (expression instanceof mathjs.AssignmentNode) {
+			if (expression.value.toString() === formattedResult) {
+				return undefined;
+			}
+		}
 
-        return simpleAppend(result.toString());
+		return simpleAppend(formattedResult);
     } catch (error) {
 		if (error instanceof Error) {
 			return errorAppend(error.message);
@@ -94,11 +117,27 @@ function getAppend(text: string, scope: any): EvaluatedAppend {
     }
 }
 
+function formatResult(result: any, scope: any): string {
+	if (scope._qikDebug || scope._qikParse) {
+		if (typeof result === 'function') {
+			return result;
+		}
+
+		return JSON.stringify(result);
+	}
+
+	if (typeof result === 'function') {
+		return "𝑓";
+	}
+
+	return result.toString();
+}
+
 function simpleAppend(text: string): EvaluatedAppend {
 	return {
 		decoration: {
 			after: {
-				contentText: ` ⇒ ${text}`
+				contentText: ` ${text}`
 			}
 		},
 		resultText: text
@@ -109,7 +148,7 @@ function errorAppend(text: string): EvaluatedAppend {
 	return {
 		decoration: {
 			after: {
-				contentText: ` ⇏ ${text}`
+				contentText: ` ${text}`
 			},
 			dark: {
 				after: {
@@ -117,8 +156,8 @@ function errorAppend(text: string): EvaluatedAppend {
 				}
 			},
 			light: {
-				before: {
-					color: "#000000"
+				after: {
+					color: "#a8443d"
 				}
 			},
 		},
@@ -126,5 +165,5 @@ function errorAppend(text: string): EvaluatedAppend {
 	};
 }
 
-export { applyEvaluationsOnClb, getEvaluations, getAppend, decorator };
+export { applyEvaluationsOnClb, getEvaluations, getAppend, evaluateScopeUntilLine, decorator };
 export type { EvaluatedAppend };
