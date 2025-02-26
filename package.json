@@ -44,12 +44,22 @@
         "command": "calcbook.showDetailsPane",
         "title": "CalcBook: Show Details",
         "icon": "$(inspect)"
+      },
+      {
+        "command": "calcbook.copyTeX",
+        "title": "Copy as TeX"
       }
     ],
     "menus": {
       "editor/title/run": [
         {
           "command": "calcbook.showDetailsPane",
+          "when": "editorLangId == 'calcbook'"
+        }
+      ],
+      "editor/context/copy": [
+        {
+          "command": "calcbook.copyTeX",
           "when": "editorLangId == 'calcbook'"
         }
       ]

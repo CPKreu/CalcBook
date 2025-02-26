@@ -10,11 +10,22 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.env.clipboard.writeText(args.toString());
     });
 
+	const copyTexCommand = vscode.commands.registerCommand('calcbook.copyTeX', () => {
+		const editor = vscode.window.activeTextEditor;
+
+		if (!editor) {
+			return;
+		}
+
+		vscode.env.clipboard.writeText(mathjs.parse(editor.document.lineAt(editor.selection.start).text).toTex());
+	});
+
 	language.activate(context);
 	decorator.activate(context);
 	detailsPane.activate(context);
 
 	context.subscriptions.push(copyCommand);
+	context.subscriptions.push(copyTexCommand);
 }
 
 export function deactivate() {}
