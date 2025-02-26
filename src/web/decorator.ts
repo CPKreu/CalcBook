@@ -7,7 +7,7 @@ interface EvaluatedAppend {
     resultText: string
 }
 
-const decorator = vscode.window.createTextEditorDecorationType({
+const resultDecorator = vscode.window.createTextEditorDecorationType({
 	after: {
 		fontStyle: "italic"
 	},
@@ -23,6 +23,11 @@ const decorator = vscode.window.createTextEditorDecorationType({
     }
 });
 
+const titleDecorator = vscode.window.createTextEditorDecorationType({
+	fontWeight: "700",
+	textDecoration: "underline"
+})
+
 function applyEvaluationsOnClb(editor: vscode.TextEditor | undefined) {
 	if (!editor || editor.document.languageId !== "calcbook")
 	{
@@ -31,17 +36,43 @@ function applyEvaluationsOnClb(editor: vscode.TextEditor | undefined) {
 
 	const evaluations = getEvaluations(editor.document);
 
-	editor.setDecorations(decorator, evaluations);
+	editor.setDecorations(resultDecorator, evaluations[0]);
+	editor.setDecorations(titleDecorator, evaluations[1]);
 }
 
-function getEvaluations(document: vscode.TextDocument): vscode.DecorationOptions[] {
+function getEvaluations(document: vscode.TextDocument): [vscode.DecorationOptions[], vscode.DecorationOptions[]] {
 	const scope = { };
-	const decorations: vscode.DecorationOptions[] = [];
+	const resultDecorations: vscode.DecorationOptions[] = [];
+	const titleDecorations: vscode.DecorationOptions[] = [];
 
 	for (let i = 0; i < document.lineCount; i++) {
 		const line = document.lineAt(i);
 
-		if (line.isEmptyOrWhitespace || line.text.match(/^\s*#/m)) {
+		if (line.isEmptyOrWhitespace) {
+			continue;
+		}
+
+		if (line.text.startsWith("##")) {
+			let start;
+
+			if (line.text.length === 2) {
+				start = 0;
+			}
+			else {
+				start = [...line.text.slice(2)].findIndex(c => c !== ' ') + 2
+			}
+
+			if (start === -1 + 2) {
+				start = 0;
+			}
+
+			titleDecorations.push({
+				range: new vscode.Range(line.range.start.translate(0, start), line.range.end),
+			})
+			continue;
+		}
+
+		if (line.text.startsWith("#")) {
 			continue;
 		}
 
@@ -63,10 +94,10 @@ function getEvaluations(document: vscode.TextDocument): vscode.DecorationOptions
 			hoverMessage: hoverMessage
 		};
 
-		decorations.push(decoration);
+		resultDecorations.push(decoration);
 	}
 
-	return decorations;
+	return [resultDecorations, titleDecorations];
 }
 
 function getAppend(text: string, scope: any): EvaluatedAppend | undefined {
@@ -134,5 +165,5 @@ export function activate(context: vscode.ExtensionContext) {
 		applyEvaluationsOnClb(vscode.window.activeTextEditor);
 	}
 
-	context.subscriptions.push(decorator);
+	context.subscriptions.push(resultDecorator);
 }

@@ -52,9 +52,43 @@ export function activate(context: vscode.ExtensionContext) {
         },
     }
 
+    const foldingRange: vscode.FoldingRangeProvider = {
+        provideFoldingRanges(document, context, token) {
+            const text = document.getText();
+
+            const titles = text.matchAll(/^##/gm);
+            const positions: number[] = [];
+
+            for (const element of titles) {
+                positions.push(element.index);
+            }
+
+            const ranges: vscode.FoldingRange[] = [];
+
+            for (let i = 0; i < positions.length; i++) {
+                const position = positions[i];
+                
+                const start = document.positionAt(position);
+                let end: vscode.Position;
+                
+                if (i === positions.length - 1) {
+                    end = document.positionAt(text.length);
+                }
+                else {
+                    end = document.positionAt(positions[i + 1] - 1);
+                }
+
+                ranges.push(new vscode.FoldingRange(start.line, end.line, vscode.FoldingRangeKind.Region))
+            }
+
+            return ranges;
+        },
+    }
+
     vscode.languages.registerCompletionItemProvider("calcbook", completionItemProvider);
     vscode.languages.registerHoverProvider("calcbook", hoverProvider);
     vscode.languages.registerDefinitionProvider("calcbook", definitionProvider);
+    vscode.languages.registerFoldingRangeProvider("calcbook", foldingRange);
 }
 
 function getCompletionItemsAtLine(document: vscode.TextDocument, line: number): vscode.CompletionItem[] {
