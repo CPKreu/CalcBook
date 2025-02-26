@@ -41,8 +41,8 @@
     ],
     "commands": [
       {
-        "command": "calcbook.showCustomWindow",
-        "title": "Show Custom Window"
+        "command": "calcbook.showDetailsPane",
+        "title": "CalcBook: Show Details"
       }
     ]
   },

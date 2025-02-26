@@ -68,7 +68,9 @@ function getEvaluations(document: vscode.TextDocument): vscode.DecorationOptions
 	return decorations;
 }
 
-function evaluateScopeUntilLine(document: vscode.TextDocument, scope: any, line: number) {
+function evaluateScopeUntilLine(document: vscode.TextDocument, scope: any, line: number): any {
+	let result: any;
+
 	for (let i = 0; i <= line; i++) {
 		const line = document.lineAt(i);
 
@@ -78,7 +80,7 @@ function evaluateScopeUntilLine(document: vscode.TextDocument, scope: any, line:
 
 		const expression = mathjs.parse(line.text);
 
-		expression.compile().evaluate(scope);
+		result = expression.compile().evaluate(scope);
 
 		if (expression instanceof mathjs.AssignmentNode) {
 			const assignmentObject = expression.object;
@@ -90,6 +92,8 @@ function evaluateScopeUntilLine(document: vscode.TextDocument, scope: any, line:
 			}
 		}
 	}
+
+	return result;
 }
 
 function getAppend(text: string, scope: any): EvaluatedAppend | undefined {
@@ -165,5 +169,5 @@ function errorAppend(text: string): EvaluatedAppend {
 	};
 }
 
-export { applyEvaluationsOnClb, getEvaluations, getAppend, evaluateScopeUntilLine, decorator };
+export { applyEvaluationsOnClb, getEvaluations, getAppend, evaluateScopeUntilLine, formatResult, decorator };
 export type { EvaluatedAppend };

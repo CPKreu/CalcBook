@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as language from './language.js';
 import * as decorator from './decorator.js';
+import * as detailsPane from './detailsPane.js';
 
 export function activate(context: vscode.ExtensionContext) {
     const copyCommand = vscode.commands.registerCommand('calcbook.copyToClipboard', (args) => {
@@ -9,6 +10,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	language.activate(context);
 	decorator.activate(context);
+	detailsPane.activate(context);
 
 	context.subscriptions.push(copyCommand);
 }
